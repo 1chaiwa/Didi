@@ -3,102 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Didi Quail Farm & Delivery</title>
+    <title>Didi Quail Farm - Smoked Meats</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; overflow-x: hidden; }
-        .app-container { max-width: 450px; margin: 0 auto; background: #f8f9fa; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-        .app-header { background: linear-gradient(135deg, #6B8E23, #8FBC8F); color: white; padding: 20px 16px; position: sticky; top: 0; z-index: 100; }
-        .app-header h1 { font-size: 1.4rem; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-        .app-header h1 i { font-size: 1.7rem; }
-        .app-header p { font-size: 0.75rem; opacity: 0.95; margin-top: 5px; }
-        .logo-img { height: 45px; width: auto; border-radius: 50%; object-fit: cover; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 450px; margin: 0 auto; background: white; display: flex; justify-content: space-around; padding: 10px 0 20px; border-top: 1px solid #eee; z-index: 100; overflow-x: auto; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; font-size: 0.65rem; color: #888; cursor: pointer; min-width: 60px; }
-        .nav-item i { font-size: 1.2rem; }
-        .nav-item.active { color: #6B8E23; }
-        .main-content { padding: 16px; padding-bottom: 80px; }
-        .page { display: none; animation: fadeIn 0.3s ease; }
-        .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .menu-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; }
-        .menu-card.admin-mode { border: 2px solid #6B8E23; }
-        .menu-card .admin-badge { position: absolute; top: 5px; right: 5px; background: #6B8E23; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.6rem; z-index: 1; }
-        .menu-img { width: 100%; height: 130px; object-fit: cover; background: #f0f0f0; }
-        .menu-info { padding: 10px; }
-        .menu-info h3 { font-size: 0.9rem; margin-bottom: 4px; }
-        .menu-info p { font-size: 0.7rem; color: #777; margin-bottom: 8px; }
-        .price { color: #6B8E23; font-weight: bold; font-size: 1rem; margin-bottom: 8px; }
-        .stock-badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.6rem; font-weight: bold; margin-bottom: 6px; }
-        .stock-in { background: #d4edda; color: #155724; }
-        .stock-low { background: #fff3cd; color: #856404; }
-        .stock-out { background: #f8d7da; color: #721c24; }
-        .add-btn, .edit-btn, .delete-btn { background: #6B8E23; color: white; border: none; padding: 6px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; width: 100%; cursor: pointer; margin-top: 5px; }
-        .delete-btn { background: #ff4444; }
-        .edit-btn { background: #2196F3; }
-        .cart-card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 16px; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .total { font-size: 1.2rem; font-weight: bold; margin-top: 12px; text-align: right; color: #6B8E23; }
-        .input-field { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 12px; margin: 8px 0; font-size: 0.9rem; }
-        .gps-btn { background: #2196F3; color: white; border: none; padding: 12px; border-radius: 12px; width: 100%; margin: 8px 0; font-weight: 600; cursor: pointer; }
-        .payment-option { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #ddd; border-radius: 12px; margin: 8px 0; }
-        .order-btn, .admin-btn { background: linear-gradient(135deg, #6B8E23, #556B2F); color: white; border: none; padding: 14px; border-radius: 12px; width: 100%; font-size: 1rem; font-weight: bold; margin-top: 16px; cursor: pointer; }
-        .map-container { background: white; border-radius: 16px; overflow: hidden; margin: 16px 0; }
-        #customerMap, #deliveryMap { height: 280px; width: 100%; }
-        .order-card { background: white; border-radius: 12px; padding: 12px; margin-bottom: 12px; border-left: 4px solid #6B8E23; }
-        .status-badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: bold; }
-        .status-pending { background: #ff9800; color: white; }
-        .status-accepted { background: #2196F3; color: white; }
-        .status-delivering { background: #9c27b0; color: white; }
-        .status-delivered { background: #4CAF50; color: white; }
-        .delivery-boy-card { background: linear-gradient(135deg, #f0f8e8, #e8f5e9); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
-        .btn-primary { background: #6B8E23; color: white; border: none; padding: 10px; border-radius: 12px; width: 100%; font-weight: bold; margin: 5px 0; cursor: pointer; }
-        .notification { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 20px; border-radius: 30px; font-size: 0.8rem; z-index: 1000; text-align: center; }
-        .filter-bar { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
-        .filter-btn { background: #eee; border: none; padding: 8px 12px; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
-        .filter-btn.active { background: #6B8E23; color: white; }
-        .delivery-girl-card { background: #f0f8e8; border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .stat-card { background: linear-gradient(135deg, #6B8E23, #556B2F); color: white; border-radius: 12px; padding: 12px; text-align: center; margin-bottom: 10px; }
-        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: white; border-radius: 20px; padding: 20px; max-width: 350px; width: 90%; margin: auto; max-height: 90vh; overflow-y: auto; }
-        .modal-content h3 { margin-bottom: 15px; }
-        .modal-buttons { display: flex; gap: 10px; margin-top: 15px; }
-        .modal-buttons button { flex: 1; padding: 10px; border-radius: 10px; border: none; cursor: pointer; }
-        .modal-buttons button:first-child { background: #6B8E23; color: white; }
-        .modal-buttons button:last-child { background: #ccc; }
-        .info-banner { background: linear-gradient(135deg, #FFF8E1, #FFECB3); border-left: 4px solid #FFC107; padding: 10px 12px; border-radius: 10px; margin-bottom: 12px; font-size: 0.75rem; color: #5D4037; }
-        .category-tabs { display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; }
-        .category-tab { background: white; border: 1px solid #ddd; padding: 6px 14px; border-radius: 20px; font-size: 0.7rem; cursor: pointer; white-space: nowrap; font-weight: 600; color: #666; }
-        .category-tab.active { background: #6B8E23; color: white; border-color: #6B8E23; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; overflow-x: hidden; }
+.app-container { max-width: 450px; margin: 0 auto; background: #f8f9fa; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+.app-header { background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 20px 16px; position: sticky; top: 0; z-index: 100; }
+.app-header h1 { font-size: 1.4rem; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.app-header h1 i { font-size: 1.7rem; color: #FFD700; }
+.app-header p { font-size: 0.75rem; opacity: 0.95; margin-top: 5px; }
+.logo-img { height: 45px; width: auto; border-radius: 50%; object-fit: cover; }
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 450px; margin: 0 auto; background: white; display: flex; justify-content: space-around; padding: 10px 0 20px; border-top: 1px solid #eee; z-index: 100; overflow-x: auto; }
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; font-size: 0.65rem; color: #888; cursor: pointer; min-width: 60px; }
+.nav-item i { font-size: 1.2rem; }
+.nav-item.active { color: #8B4513; }
+.main-content { padding: 16px; padding-bottom: 80px; }
+.page { display: none; animation: fadeIn 0.3s ease; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.menu-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; }
+.menu-card.admin-mode { border: 2px solid #8B4513; }
+.menu-card .admin-badge { position: absolute; top: 5px; right: 5px; background: #8B4513; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.6rem; z-index: 1; }
+.menu-card .smoke-badge { position: absolute; top: 5px; left: 5px; background: linear-gradient(135deg, #FF6B35, #F7931E); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.55rem; z-index: 1; font-weight: bold; }
+.menu-img { width: 100%; height: 130px; object-fit: cover; background: #f0f0f0; }
+.menu-info { padding: 10px; }
+.menu-info h3 { font-size: 0.9rem; margin-bottom: 4px; }
+.menu-info p { font-size: 0.7rem; color: #777; margin-bottom: 8px; }
+.price { color: #8B4513; font-weight: bold; font-size: 1rem; margin-bottom: 8px; }
+.stock-badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.6rem; font-weight: bold; margin-bottom: 6px; }
+.stock-in { background: #d4edda; color: #155724; }
+.stock-low { background: #fff3cd; color: #856404; }
+.stock-out { background: #f8d7da; color: #721c24; }
+.add-btn, .edit-btn, .delete-btn { background: #8B4513; color: white; border: none; padding: 6px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; width: 100%; cursor: pointer; margin-top: 5px; }
+.delete-btn { background: #ff4444; }
+.edit-btn { background: #2196F3; }
+.cart-card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+.cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+.total { font-size: 1.2rem; font-weight: bold; margin-top: 12px; text-align: right; color: #8B4513; }
+.input-field { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 12px; margin: 8px 0; font-size: 0.9rem; }
+.gps-btn { background: #2196F3; color: white; border: none; padding: 12px; border-radius: 12px; width: 100%; margin: 8px 0; font-weight: 600; cursor: pointer; }
+.payment-option { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #ddd; border-radius: 12px; margin: 8px 0; }
+.order-btn, .admin-btn { background: linear-gradient(135deg, #8B4513, #A0522D); color: white; border: none; padding: 14px; border-radius: 12px; width: 100%; font-size: 1rem; font-weight: bold; margin-top: 16px; cursor: pointer; }
+.map-container { background: white; border-radius: 16px; overflow: hidden; margin: 16px 0; }
+#customerMap, #deliveryMap { height: 280px; width: 100%; }
+.order-card { background: white; border-radius: 12px; padding: 12px; margin-bottom: 12px; border-left: 4px solid #8B4513; }
+.status-badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: bold; }
+.status-pending { background: #ff9800; color: white; }
+.status-accepted { background: #2196F3; color: white; }
+.status-delivering { background: #9c27b0; color: white; }
+.status-delivered { background: #4CAF50; color: white; }
+.delivery-boy-card { background: linear-gradient(135deg, #fdf5e6, #ffe4c4); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+.btn-primary { background: #8B4513; color: white; border: none; padding: 10px; border-radius: 12px; width: 100%; font-weight: bold; margin: 5px 0; cursor: pointer; }
+.notification { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 20px; border-radius: 30px; font-size: 0.8rem; z-index: 1000; text-align: center; }
+.filter-bar { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
+.filter-btn { background: #eee; border: none; padding: 8px 12px; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
+.filter-btn.active { background: #8B4513; color: white; }
+.delivery-girl-card { background: #fdf5e6; border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+.stat-card { background: linear-gradient(135deg, #8B4513, #A0522D); color: white; border-radius: 12px; padding: 12px; text-align: center; margin-bottom: 10px; }
+.modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+.modal-content { background: white; border-radius: 20px; padding: 20px; max-width: 350px; width: 90%; margin: auto; max-height: 90vh; overflow-y: auto; }
+.modal-content h3 { margin-bottom: 15px; }
+.modal-buttons { display: flex; gap: 10px; margin-top: 15px; }
+.modal-buttons button { flex: 1; padding: 10px; border-radius: 10px; border: none; cursor: pointer; }
+.modal-buttons button:first-child { background: #8B4513; color: white; }
+.modal-buttons button:last-child { background: #ccc; }
+.info-banner { background: linear-gradient(135deg, #FFF8E1, #FFECB3); border-left: 4px solid #FFC107; padding: 10px 12px; border-radius: 10px; margin-bottom: 12px; font-size: 0.75rem; color: #5D4037; }
+.category-tabs { display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; }
+.category-tab { background: white; border: 1px solid #ddd; padding: 6px 14px; border-radius: 20px; font-size: 0.7rem; cursor: pointer; white-space: nowrap; font-weight: 600; color: #666; }
+.category-tab.active { background: #8B4513; color: white; border-color: #8B4513; }
+.smoke-feature { background: linear-gradient(135deg, #FFE4B5, #FFDAB9); border-radius: 12px; padding: 12px; margin-bottom: 12px; text-align: center; border: 1px dashed #8B4513; }
+.smoke-feature h4 { color: #8B4513; font-size: 0.9rem; margin-bottom: 4px; }
+.smoke-feature p { font-size: 0.7rem; color: #5D4037; }
     </style>
 </head>
 <body>
 <div class="app-container">
     <div class="app-header">
         <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-            <img src="images/didi-logo.png" class="logo-img" alt="Logo" onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('afterbegin','<i class=\'fas fa-dove\' style=\'font-size:2.5rem\'></i>')">
+            <img src="images/didi-logo.png" class="logo-img" alt="Logo" onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('afterbegin','<i class=\'fas fa-fire\' style=\'font-size:2.5rem\'></i>')">
             <div>
-                <h1><i class="fas fa-dove"></i> Didi Quail Farm</h1>
-                <p>📍 Kasama, Zambia • Fresh Quails, Eggs & Chicks Delivered</p>
+                <h1><i class="fas fa-fire"></i> Didi Smoked Meats</h1>
+                <p>📍 Kasama, Zambia • Smoked Quails & Bush Meat Delivered</p>
             </div>
         </div>
     </div>
 
     <div class="main-content">
-        <!-- HOME PAGE -->
         <div id="homePage" class="page active">
             <div class="info-banner">
-                <i class="fas fa-info-circle"></i> <strong>Welcome to Didi Quail Farm!</strong> We deliver live quails, fresh quail eggs, day-old chicks, and breeding pairs across Kasama.
+                <i class="fas fa-fire"></i> <strong>Welcome to Didi Smoked Meats!</strong> Premium smoked quails and smoked bush meat, delivered fresh across Kasama.
+            </div>
+            <div class="smoke-feature">
+                <h4>🔥 Traditional Wood-Smoked Goodness</h4>
+                <p>Slow-smoked over natural wood for rich, authentic flavor</p>
             </div>
             <div class="category-tabs" id="categoryTabs"></div>
             <div class="menu-grid" id="menuGrid"></div>
         </div>
 
-        <!-- CART PAGE -->
         <div id="cartPage" class="page">
             <div class="cart-card"><h3>🛒 Your Order</h3><div id="cartItemsList"></div><div class="total" id="cartTotal">Total: ZMW 0.00</div></div>
             <div class="cart-card">
@@ -116,17 +122,15 @@
             <button class="order-btn" onclick="placeOrder()"><i class="fas fa-truck"></i> Place Order</button>
         </div>
 
-        <!-- TRACK PAGE -->
         <div id="trackPage" class="page">
             <div class="map-container"><div id="customerMap"></div></div>
             <div id="trackingStatus" class="cart-card"></div>
             <div id="orderHistoryList"></div>
         </div>
 
-        <!-- DELIVERY PAGE -->
         <div id="deliveryPage" class="page">
             <div id="deliveryLogin" class="cart-card" style="text-align:center">
-                <i class="fas fa-female" style="font-size: 50px; color: #6B8E23;"></i>
+                <i class="fas fa-motorcycle" style="font-size: 50px; color: #8B4513;"></i>
                 <h3>Delivery Agent Login</h3>
                 <input type="text" id="deliveryName" class="input-field" placeholder="Name">
                 <input type="password" id="deliveryPin" class="input-field" placeholder="PIN">
@@ -134,43 +138,39 @@
             </div>
             <div id="deliveryDashboard" style="display:none">
                 <div class="delivery-boy-card">
-                    <h3><i class="fas fa-female"></i> Welcome, <span id="deliveryGirlName"></span></h3>
+                    <h3><i class="fas fa-motorcycle"></i> Welcome, <span id="deliveryGirlName"></span></h3>
                     <button class="btn-primary" onclick="updateDeliveryLocation()"><i class="fas fa-satellite-dish"></i> Update My Live Location</button>
-                    <div id="deliveryLocationStatus" class="delivery-movement" style="margin-top:8px">📍 Location: Not set</div>
+                    <div id="deliveryLocationStatus" style="margin-top:8px">📍 Location: Not set</div>
                 </div>
                 <h3>📋 Available Deliveries</h3>
                 <div id="availableOrdersList"></div>
                 <h3>🛵 My Active Deliveries</h3>
                 <div id="myDeliveriesList"></div>
                 <div class="map-container"><div id="deliveryMap"></div></div>
-                <div id="navPanel"></div>
             </div>
         </div>
 
-        <!-- ADMIN PAGE -->
         <div id="adminPage" class="page">
             <div id="adminLogin" class="cart-card" style="text-align:center">
-                <i class="fas fa-lock" style="font-size: 50px; color: #6B8E23;"></i>
-                <h3>Farm Admin Login</h3>
+                <i class="fas fa-lock" style="font-size: 50px; color: #8B4513;"></i>
+                <h3>Admin Login</h3>
                 <input type="password" id="adminPassword" class="input-field" placeholder="Admin Password">
                 <button class="btn-primary" onclick="loginAdmin()">Login</button>
             </div>
             <div id="adminDashboard" style="display:none">
                 <div class="stat-card">
-                    <h3>📊 Didi Farm Dashboard</h3>
+                    <h3>📊 Didi Smoked Meats Dashboard</h3>
                     <p>Total Orders: <span id="totalOrdersCount">0</span></p>
                     <p>Total Revenue: ZMW <span id="totalRevenue">0</span></p>
                     <p>Products: <span id="menuItemsCount">0</span></p>
                 </div>
-                
                 <div class="cart-card">
-                    <h3>🐦 Manage Quail Products</h3>
+                    <h3>🔥 Manage Smoked Products</h3>
                     <button class="btn-primary" onclick="showAddMenuItemModal()"><i class="fas fa-plus"></i> Add New Product</button>
                     <div id="adminMenuList" style="margin-top: 15px;"></div>
                 </div>
-
                 <div class="cart-card">
-                    <h3>👩‍🦱 Manage Delivery Agents</h3>
+                    <h3>👤 Manage Delivery Agents</h3>
                     <div style="display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;">
                         <input type="text" id="newGirlName" class="input-field" placeholder="Agent Name" style="flex:2">
                         <input type="text" id="newGirlPin" class="input-field" placeholder="PIN" style="flex:1">
@@ -178,7 +178,6 @@
                     </div>
                     <div id="deliveryGirlsList"></div>
                 </div>
-
                 <div class="cart-card">
                     <h3>📅 Filter Orders by Month</h3>
                     <div class="filter-bar">
@@ -198,7 +197,6 @@
                     </div>
                     <div id="filteredOrdersList"></div>
                 </div>
-
                 <div class="cart-card">
                     <h3>📋 All Orders</h3>
                     <div id="allOrdersList"></div>
@@ -206,25 +204,33 @@
             </div>
         </div>
 
-        <!-- PROFILE PAGE -->
         <div id="profilePage" class="page">
             <div class="cart-card" style="text-align:center">
-                <i class="fas fa-dove" style="font-size: 50px; color: #6B8E23;"></i>
-                <h3>Didi Quail Farm</h3>
+                <i class="fas fa-fire" style="font-size: 50px; color: #8B4513;"></i>
+                <h3>Didi Smoked Meats</h3>
                 <p>📍 Kasama Town Center, Northern Province</p>
                 <p>📞 +260 97 123 4567</p>
                 <p>⏰ Mon-Sun: 7AM - 6PM</p>
                 <hr style="margin:15px 0">
                 <h4>About Us</h4>
-                <p>Didi Quail Farm is a specialized quail farm delivering fresh quails, quail eggs, day-old chicks, and breeding pairs across Kasama District. Our delivery agents ensure your birds arrive healthy and on time.</p>
+                <p>Didi Smoked Meats specializes in traditional wood-smoked quails and premium smoked bush meat, delivered fresh across Kasama District.</p>
                 <hr style="margin:15px 0">
-                <h4>🐦 Why Quails?</h4>
+                <h4>🔥 Our Smoking Process</h4>
                 <p style="font-size:0.8rem;text-align:left;line-height:1.6;">
-                    • High protein, low cholesterol meat<br>
-                    • Nutritious eggs (rich in vitamins)<br>
-                    • Fast-growing and low-cost farming<br>
-                    • Great for small-scale farmers<br>
-                    • Medicinal value in traditional health
+                    • Natural wood smoking (no chemicals)<br>
+                    • Slow-cooked for rich flavor<br>
+                    • Traditional Zambian recipe<br>
+                    • Hygienically packaged<br>
+                    • Long shelf life when stored properly
+                </p>
+                <hr style="margin:15px 0">
+                <h4>🥩 Why Smoked Meat?</h4>
+                <p style="font-size:0.8rem;text-align:left;line-height:1.6;">
+                    • Rich, authentic smoky flavor<br>
+                    • Preserved naturally without refrigeration<br>
+                    • High in protein<br>
+                    • Ready to eat or heat and serve<br>
+                    • Perfect for travel and outdoor events
                 </p>
             </div>
         </div>
@@ -240,22 +246,14 @@
     </div>
 </div>
 
-<!-- Modal for Add/Edit Product -->
 <div id="menuModal" class="modal">
     <div class="modal-content">
-        <h3 id="modalTitle">Add New Quail Product</h3>
-        <input type="text" id="itemName" class="input-field" placeholder="Product Name (e.g., Live Quail - Adult)">
+        <h3 id="modalTitle">Add New Smoked Product</h3>
+        <input type="text" id="itemName" class="input-field" placeholder="Product Name">
         <textarea id="itemDesc" class="input-field" rows="2" placeholder="Description"></textarea>
         <input type="number" id="itemPrice" class="input-field" placeholder="Price (ZMW)">
-        <input type="text" id="itemCategory" class="input-field" placeholder="Category (Live Birds / Eggs / Chicks / Breeding)" list="categoryList">
-        <datalist id="categoryList">
-            <option value="Live Birds">
-            <option value="Eggs">
-            <option value="Chicks">
-            <option value="Breeding Pairs">
-            <option value="Equipment">
-        </datalist>
-        <input type="number" id="itemStock" class="input-field" placeholder="Stock Available (quantity)">
+        <input type="text" id="itemCategory" class="input-field" placeholder="Category (Smoked Quails / Smoked Bush Meat / Smoked Fish / Combos)">
+        <input type="number" id="itemStock" class="input-field" placeholder="Stock Available">
         <input type="text" id="itemImage" class="input-field" placeholder="Image URL (optional)">
         <input type="hidden" id="editItemId">
         <div class="modal-buttons">
@@ -266,877 +264,529 @@
 </div>
 
 <script>
-    // ============ DIDI QUAIL PRODUCTS MENU ============
-    let menu = [
-        {
-            id: 1,
-            name: "Live Quail - Adult",
-            description: "Healthy adult quails ready for meat or breeding",
-            price: 25,
-            category: "Live Birds",
-            stock: 50,
-            image: "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400"
-        },
-        {
-            id: 2,
-            name: "Live Quail - Young",
-            description: "Young quails (4-6 weeks) growing fast",
-            price: 18,
-            category: "Live Birds",
-            stock: 40,
-            image: "https://images.unsplash.com/photo-1612170153139-6f881ff067e0?w=400"
-        },
-        {
-            id: 3,
-            name: "Quail Eggs - Tray (30)",
-            description: "Fresh farm quail eggs, high in protein",
-            price: 35,
-            category: "Eggs",
-            stock: 100,
-            image: "https://images.unsplash.com/photo-1587486913049-53fc88980cfc?w=400"
-        },
-        {
-            id: 4,
-            name: "Quail Eggs - Half Tray (15)",
-            description: "Half tray of fresh quail eggs",
-            price: 20,
-            category: "Eggs",
-            stock: 80,
-            image: "https://images.unsplash.com/photo-1518569656558-1f25e69d93d7?w=400"
-        },
-        {
-            id: 5,
-            name: "Day-Old Chicks (10)",
-            description: "Pack of 10 day-old quail chicks",
-            price: 30,
-            category: "Chicks",
-            stock: 60,
-            image: "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400"
-        },
-        {
-            id: 6,
-            name: "Day-Old Chicks (50)",
-            description: "Bulk pack of 50 day-old quail chicks",
-            price: 120,
-            category: "Chicks",
-            stock: 20,
-            image: "https://images.unsplash.com/photo-1612170153139-6f881ff067e0?w=400"
-        },
-        {
-            id: 7,
-            name: "Breeding Pair",
-            description: "One male + one female quail for breeding",
-            price: 55,
-            category: "Breeding Pairs",
-            stock: 15,
-            image: "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400"
-        },
-        {
-            id: 8,
-            name: "Breeding Trio",
-            description: "One male + two females for breeding",
-            price: 80,
-            category: "Breeding Pairs",
-            stock: 10,
-            image: "https://images.unsplash.com/photo-1612170153139-6f881ff067e0?w=400"
-        },
-        {
-            id: 9,
-            name: "Quail Feeds - 5kg",
-            description: "Special quail feed for layers or growers",
-            price: 65,
-            category: "Equipment",
-            stock: 30,
-            image: "https://images.unsplash.com/photo-1495252028498-3e3b8c7cd5d3?w=400"
-        },
-        {
-            id: 10,
-            name: "Quail Feeds - 25kg",
-            description: "Bulk quail feed - best value",
-            price: 280,
-            category: "Equipment",
-            stock: 12,
-            image: "https://images.unsplash.com/photo-1495252028498-3e3b8c7cd5d3?w=400"
-        },
-        {
-            id: 11,
-            name: "Egg Incubator - Small",
-            description: "Holds up to 50 quail eggs",
-            price: 450,
-            category: "Equipment",
-            stock: 5,
-            image: "https://images.unsplash.com/photo-1587486913049-53fc88980cfc?w=400"
-        },
-        {
-            id: 12,
-            name: "Quail Cage (Starter)",
-            description: "Small starter cage for 10-15 quails",
-            price: 220,
-            category: "Equipment",
-            stock: 8,
-            image: "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400"
+let menu = [
+    {
+        id: 1,
+        name: "Smoked Quail - Whole",
+        description: "Whole smoked quail, ready to eat. Wood-smoked for 6 hours",
+        price: 55,
+        category: "Smoked Quails",
+        stock: 30,
+        image: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400",
+        smoked: true
+    },
+    {
+        id: 2,
+        name: "Smoked Quail - Half",
+        description: "Half smoked quail - perfect for one person",
+        price: 30,
+        category: "Smoked Quails",
+        stock: 45,
+        image: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400",
+        smoked: true
+    },
+    {
+        id: 3,
+        name: "Smoked Quail - Family Pack (4)",
+        description: "4 whole smoked quails - great for family meals",
+        price: 200,
+        category: "Smoked Quails",
+        stock: 15,
+        image: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400",
+        smoked: true
+    },
+    {
+        id: 4,
+        name: "Smoked Bush Meat - 500g",
+        description: "Premium smoked bush meat, traditional recipe, 500g pack",
+        price: 85,
+        category: "Smoked Bush Meat",
+        stock: 25,
+        image: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400",
+        smoked: true
+    },
+    {
+        id: 5,
+        name: "Smoked Bush Meat - 1kg",
+        description: "Premium smoked bush meat, family size 1kg pack",
+        price: 160,
+        category: "Smoked Bush Meat",
+        stock: 18,
+        image: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400",
+        smoked: true
+    },
+    {
+        id: 6,
+        name: "Smoked Bush Meat - 2kg",
+        description: "Bulk smoked bush meat, 2kg - best value",
+        price: 300,
+        category: "Smoked Bush Meat",
+        stock: 10,
+        image: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400",
+        smoked: true
+    },
+    {
+        id: 7,
+        name: "Smoked Fish - Kapenta",
+        description: "Traditional smoked kapenta fish, 500g pack",
+        price: 65,
+        category: "Smoked Fish",
+        stock: 40,
+        image: "https://images.unsplash.com/photo-1611171711791-b34fa5ca31c5?w=400",
+        smoked: true
+    },
+    {
+        id: 8,
+        name: "Smoked Fish - Tilapia",
+        description: "Whole smoked tilapia, freshly smoked",
+        price: 75,
+        category: "Smoked Fish",
+        stock: 22,
+        image: "https://images.unsplash.com/photo-1611171711791-b34fa5ca31c5?w=400",
+        smoked: true
+    },
+    {
+        id: 9,
+        name: "Smoked Meat Combo - Small",
+        description: "1 smoked quail + 250g smoked bush meat",
+        price: 90,
+        category: "Combos",
+        stock: 20,
+        image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=400",
+        smoked: true
+    },
+    {
+        id: 10,
+        name: "Smoked Meat Combo - Family",
+        description: "2 smoked quails + 500g smoked bush meat + smoked fish",
+        price: 220,
+        category: "Combos",
+        stock: 12,
+        image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=400",
+        smoked: true
+    },
+    {
+        id: 11,
+        name: "Smoked Quail Eggs (Tray of 30)",
+        description: "Smoked quail eggs - unique smoky flavor",
+        price: 55,
+        category: "Smoked Quails",
+        stock: 35,
+        image: "https://images.unsplash.com/photo-1587486913049-53fc88980cfc?w=400",
+        smoked: true
+    },
+    {
+        id: 12,
+        name: "Smoked Meat Sampler Pack",
+        description: "Try a bit of everything: quail, bush meat, and fish",
+        price: 150,
+        category: "Combos",
+        stock: 15,
+        image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=400",
+        smoked: true
+    }
+];
+
+let db, cart = [], currentCustomerLocation = null;
+let customerMap, customerMarker, deliveryMap, deliveryMarker;
+let currentDeliveryGirl = null, currentAdmin = false;
+let currentFilter = 'all', currentCategory = 'All';
+const KASAMA_CENTER = [-10.2129, 31.1809];
+const ADMIN_PASSWORD = "didi2024";
+const CATEGORIES = ['All', 'Smoked Quails', 'Smoked Bush Meat', 'Smoked Fish', 'Combos'];
+
+function initDB() {
+    const req = indexedDB.open('DidiSmokedMeatsDB', 2);
+    req.onupgradeneeded = (e) => {
+        db = e.target.result;
+        if (!db.objectStoreNames.contains('menu')) db.createObjectStore('menu', { keyPath: 'id', autoIncrement: true });
+        if (!db.objectStoreNames.contains('orders')) db.createObjectStore('orders', { keyPath: 'id', autoIncrement: true });
+        if (!db.objectStoreNames.contains('deliveryGirls')) db.createObjectStore('deliveryGirls', { keyPath: 'id', autoIncrement: true });
+    };
+    req.onsuccess = (e) => { db = e.target.result; loadMenuFromDB(); seedDefaultAgent(); };
+    req.onerror = (e) => console.error('DB error:', e);
+}
+
+async function seedDefaultAgent() {
+    const tx = db.transaction(['deliveryGirls'], 'readonly');
+    tx.objectStore('deliveryGirls').getAll().onsuccess = (e) => {
+        if ((e.target.result || []).length === 0) {
+            db.transaction(['deliveryGirls'], 'readwrite').objectStore('deliveryGirls').add({ name: 'Didi Agent', pin: '1234', createdAt: new Date().toISOString() });
         }
-    ];
+    };
+}
 
-    let db;
-    let cart = [];
-    let currentCustomerLocation = null;
-    let customerMap, customerMarker;
-    let deliveryMap, deliveryMarker;
-    let currentDeliveryGirl = null;
-    let currentAdmin = false;
-    let currentFilter = 'all';
-    let currentCategory = 'All';
-    
-    const KASAMA_CENTER = [-10.2129, 31.1809];
-    const ADMIN_PASSWORD = "didi2024";
+async function loadMenuFromDB() {
+    if (!db) return;
+    const tx = db.transaction(['menu'], 'readonly');
+    const saved = await new Promise(res => { tx.objectStore('menu').getAll().onsuccess = (e) => res(e.target.result || []); });
+    if (saved.length > 0) menu = saved; else await saveMenuToDB();
+    renderCategoryTabs(); renderMenu();
+    if (currentAdmin) renderAdminMenu();
+    const c = document.getElementById('menuItemsCount');
+    if (c) c.innerHTML = menu.length;
+}
 
-    const CATEGORIES = ['All', 'Live Birds', 'Eggs', 'Chicks', 'Breeding Pairs', 'Equipment'];
+async function saveMenuToDB() {
+    if (!db) return;
+    const tx = db.transaction(['menu'], 'readwrite');
+    tx.objectStore('menu').clear();
+    menu.forEach(i => tx.objectStore('menu').add(i));
+}
 
-    function initDB() {
-        const req = indexedDB.open('DidiQuailFarmDB', 1);
-        req.onupgradeneeded = (e) => {
-            db = e.target.result;
-            if (!db.objectStoreNames.contains('menu')) db.createObjectStore('menu', { keyPath: 'id', autoIncrement: true });
-            if (!db.objectStoreNames.contains('orders')) db.createObjectStore('orders', { keyPath: 'id', autoIncrement: true });
-            if (!db.objectStoreNames.contains('deliveryGirls')) db.createObjectStore('deliveryGirls', { keyPath: 'id', autoIncrement: true });
-        };
-        req.onsuccess = (e) => {
-            db = e.target.result;
-            console.log('✅ Didi Database ready');
-            loadMenuFromDB();
-            seedDefaultAgent();
-        };
-        req.onerror = (e) => console.error('❌ DB error:', e);
-    }
+function renderCategoryTabs() {
+    const c = document.getElementById('categoryTabs'); if (!c) return;
+    c.innerHTML = CATEGORIES.map(cat => `<button class="category-tab ${currentCategory === cat ? 'active' : ''}" onclick="filterByCategory('${cat}')">${cat}</button>`).join('');
+}
 
-    async function seedDefaultAgent() {
-        const tx = db.transaction(['deliveryGirls'], 'readonly');
-        const store = tx.objectStore('deliveryGirls');
-        store.getAll().onsuccess = async (e) => {
-            if ((e.target.result || []).length === 0) {
-                const tx2 = db.transaction(['deliveryGirls'], 'readwrite');
-                tx2.objectStore('deliveryGirls').add({ name: 'Didi Agent', pin: '1234', createdAt: new Date().toISOString() });
-                console.log('✅ Default delivery agent created (Didi Agent / 1234)');
-            }
-        };
-    }
+function filterByCategory(cat) { currentCategory = cat; renderCategoryTabs(); renderMenu(); }
 
-    // ============ MENU CRUD ============
-    async function loadMenuFromDB() {
-        if (!db) return;
-        const tx = db.transaction(['menu'], 'readonly');
-        const store = tx.objectStore('menu');
-        const savedMenu = await new Promise((resolve) => {
-            store.getAll().onsuccess = (e) => resolve(e.target.result || []);
-        });
-        if (savedMenu.length > 0) {
-            menu = savedMenu;
-        } else {
-            await saveMenuToDB();
-        }
-        renderCategoryTabs();
-        renderMenu();
-        if (currentAdmin) renderAdminMenu();
-        const menuCountElem = document.getElementById('menuItemsCount');
-        if (menuCountElem) menuCountElem.innerHTML = menu.length;
-    }
+function getStockClass(s) { if (s === undefined) return 'stock-in'; if (s <= 0) return 'stock-out'; if (s <= 5) return 'stock-low'; return 'stock-in'; }
+function getStockLabel(s) { if (s === undefined) return 'Available'; if (s <= 0) return 'Out of Stock'; if (s <= 5) return `Only ${s} left`; return `In Stock (${s})`; }
 
-    async function saveMenuToDB() {
-        if (!db) return;
+function renderMenu() {
+    const c = document.getElementById('menuGrid'); if (!c) return;
+    const f = currentCategory === 'All' ? menu : menu.filter(i => i.category === currentCategory);
+    if (f.length === 0) { c.innerHTML = '<p style="text-align:center;color:#999;">No products in this category</p>'; return; }
+    c.innerHTML = f.map(item => `<div class="menu-card">${item.smoked ? '<div class="smoke-badge">🔥 SMOKED</div>' : ''}<img src="${item.image}" class="menu-img" onerror="this.src='https://via.placeholder.com/400x300/8B4513/FFFFFF?text=${encodeURIComponent(item.name)}'"><div class="menu-info"><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.description || '')}</p><span class="stock-badge ${getStockClass(item.stock)}">${getStockLabel(item.stock)}</span><div class="price">ZMW ${item.price}</div><button class="add-btn" onclick="addToCart(${item.id})" ${item.stock !== undefined && item.stock <= 0 ? 'disabled style="opacity:0.5"' : ''}>+ Add to Cart</button></div></div>`).join('');
+}
+
+function renderAdminMenu() {
+    const c = document.getElementById('adminMenuList'); if (!c || !currentAdmin) return;
+    if (menu.length === 0) { c.innerHTML = '<p style="color:#999">No products</p>'; return; }
+    c.innerHTML = menu.map(item => `<div class="menu-card admin-mode" style="margin-bottom:12px;"><div class="admin-badge">ID: ${item.id}</div><img src="${item.image}" class="menu-img" style="height:100px;" onerror="this.src='https://via.placeholder.com/400x300/8B4513/FFFFFF?text=${encodeURIComponent(item.name)}'"><div class="menu-info"><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.description || '')} • <strong>${item.category || ''}</strong></p><span class="stock-badge ${getStockClass(item.stock)}">${getStockLabel(item.stock)}</span><div class="price">ZMW ${item.price}</div><div style="display:flex;gap:8px;"><button class="edit-btn" onclick="showEditMenuItemModal(${item.id})">✏️ Edit</button><button class="delete-btn" onclick="deleteMenuItem(${item.id})">🗑️ Delete</button></div></div></div>`).join('');
+}
+
+function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[m]); }
+
+function showAddMenuItemModal() {
+    document.getElementById('modalTitle').innerText = 'Add New Smoked Product';
+    ['itemName','itemDesc','itemPrice','itemCategory','itemStock','itemImage','editItemId'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('menuModal').style.display = 'flex';
+}
+
+function showEditMenuItemModal(id) {
+    const item = menu.find(i => i.id === id); if (!item) return;
+    document.getElementById('modalTitle').innerText = 'Edit Smoked Product';
+    document.getElementById('itemName').value = item.name;
+    document.getElementById('itemDesc').value = item.description || '';
+    document.getElementById('itemPrice').value = item.price;
+    document.getElementById('itemCategory').value = item.category || '';
+    document.getElementById('itemStock').value = item.stock || 0;
+    document.getElementById('itemImage').value = item.image || '';
+    document.getElementById('editItemId').value = id;
+    document.getElementById('menuModal').style.display = 'flex';
+}
+
+function closeModal() { document.getElementById('menuModal').style.display = 'none'; }
+
+async function saveMenuItem() {
+    const name = document.getElementById('itemName').value.trim();
+    const description = document.getElementById('itemDesc').value.trim();
+    const price = parseFloat(document.getElementById('itemPrice').value);
+    const category = document.getElementById('itemCategory').value.trim() || 'Smoked Quails';
+    const stock = parseInt(document.getElementById('itemStock').value) || 0;
+    let image = document.getElementById('itemImage').value.trim();
+    const editId = document.getElementById('editItemId').value;
+    if (!name || isNaN(price) || price <= 0) { showToast('❌ Fill valid name and price'); return; }
+    if (!image) image = 'https://via.placeholder.com/400x300/8B4513/FFFFFF?text=' + encodeURIComponent(name);
+    if (editId) await updateMenuItem(parseInt(editId), { name, description, price, category, stock, image, smoked: true });
+    else await addMenuItem({ name, description, price, category, stock, image, smoked: true });
+    closeModal();
+}
+
+function addMenuItem(item) {
+    return new Promise(res => {
+        const tx = db.transaction(['menu'], 'readwrite');
+        const req = tx.objectStore('menu').add(item);
+        req.onsuccess = () => { showToast(`✅ ${item.name} added`); loadMenuFromDB(); res(); };
+    });
+}
+
+function updateMenuItem(id, updates) {
+    return new Promise(res => {
         const tx = db.transaction(['menu'], 'readwrite');
         const store = tx.objectStore('menu');
-        store.clear();
-        menu.forEach(item => store.add(item));
-    }
+        store.get(id).onsuccess = (e) => {
+            store.put({ ...e.target.result, ...updates });
+            showToast(`✅ Updated`); loadMenuFromDB(); res();
+        };
+    });
+}
 
-    function renderCategoryTabs() {
-        const container = document.getElementById('categoryTabs');
-        if (!container) return;
-        container.innerHTML = CATEGORIES.map(cat => `
-            <button class="category-tab ${currentCategory === cat ? 'active' : ''}" onclick="filterByCategory('${cat}')">${cat}</button>
-        `).join('');
-    }
+function deleteMenuItem(id) {
+    if (!confirm('Delete this smoked product?')) return;
+    db.transaction(['menu'], 'readwrite').objectStore('menu').delete(id);
+    showToast('🗑️ Deleted'); setTimeout(loadMenuFromDB, 200);
+}
 
-    function filterByCategory(cat) {
-        currentCategory = cat;
-        renderCategoryTabs();
-        renderMenu();
+async function loadDeliveryGirls() {
+    if (!db) return;
+    const tx = db.transaction(['deliveryGirls'], 'readonly');
+    const girls = await new Promise(res => { tx.objectStore('deliveryGirls').getAll().onsuccess = (e) => res(e.target.result || []); });
+    const c = document.getElementById('deliveryGirlsList');
+    if (c && currentAdmin) {
+        c.innerHTML = girls.length === 0 ? '<p style="color:#999">No agents yet</p>' :
+        girls.map(g => `<div class="delivery-girl-card"><div><strong>${escapeHtml(g.name)}</strong> (PIN: ${g.pin})</div><button class="delete-btn" onclick="deleteDeliveryGirl(${g.id})">Delete</button></div>`).join('');
     }
+    return girls;
+}
 
-    function getStockClass(stock) {
-        if (stock === undefined || stock === null) return 'stock-in';
-        if (stock <= 0) return 'stock-out';
-        if (stock <= 5) return 'stock-low';
-        return 'stock-in';
-    }
+function addDeliveryGirl() {
+    const name = document.getElementById('newGirlName').value.trim();
+    const pin = document.getElementById('newGirlPin').value.trim();
+    if (!name || !pin) { showToast('❌ Enter name and PIN'); return; }
+    db.transaction(['deliveryGirls'], 'readwrite').objectStore('deliveryGirls').add({ name, pin, createdAt: new Date().toISOString() });
+    showToast(`✅ ${name} added! PIN: ${pin}`);
+    document.getElementById('newGirlName').value = ''; document.getElementById('newGirlPin').value = '';
+    loadDeliveryGirls();
+}
 
-    function getStockLabel(stock) {
-        if (stock === undefined || stock === null) return 'Available';
-        if (stock <= 0) return 'Out of Stock';
-        if (stock <= 5) return `Only ${stock} left`;
-        return `In Stock (${stock})`;
-    }
+function deleteDeliveryGirl(id) {
+    if (!confirm('Delete this agent?')) return;
+    db.transaction(['deliveryGirls'], 'readwrite').objectStore('deliveryGirls').delete(id);
+    showToast('Deleted'); loadDeliveryGirls();
+}
 
-    function renderMenu() {
-        const container = document.getElementById('menuGrid');
-        if (!container) return;
-        const filtered = currentCategory === 'All' ? menu : menu.filter(i => i.category === currentCategory);
-        if (filtered.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color:#999;">No products in this category</p>';
-            return;
-        }
-        container.innerHTML = filtered.map(item => `
-            <div class="menu-card">
-                <img src="${item.image}" class="menu-img" alt="${item.name}" onerror="this.src='https://via.placeholder.com/400x300/d4e8c1/6B8E23?text=${encodeURIComponent(item.name)}'">
-                <div class="menu-info">
-                    <h3>${escapeHtml(item.name)}</h3>
-                    <p>${escapeHtml(item.description || '')}</p>
-                    <span class="stock-badge ${getStockClass(item.stock)}">${getStockLabel(item.stock)}</span>
-                    <div class="price">ZMW ${item.price}</div>
-                    <button class="add-btn" onclick="addToCart(${item.id})" ${item.stock !== undefined && item.stock <= 0 ? 'disabled style="opacity:0.5"' : ''}>+ Add to Cart</button>
-                </div>
-            </div>
-        `).join('');
-    }
+async function verifyDeliveryGirl(name, pin) {
+    const tx = db.transaction(['deliveryGirls'], 'readonly');
+    const girls = await new Promise(res => { tx.objectStore('deliveryGirls').getAll().onsuccess = (e) => res(e.target.result || []); });
+    return girls.find(g => g.name === name && g.pin === pin);
+}
 
-    function renderAdminMenu() {
-        const container = document.getElementById('adminMenuList');
-        if (!container || !currentAdmin) return;
-        if (menu.length === 0) {
-            container.innerHTML = '<p style="color:#999">No products. Add some!</p>';
-            return;
-        }
-        container.innerHTML = menu.map(item => `
-            <div class="menu-card admin-mode" style="margin-bottom: 12px;">
-                <div class="admin-badge">ID: ${item.id}</div>
-                <img src="${item.image}" class="menu-img" alt="${item.name}" style="height: 100px;" onerror="this.src='https://via.placeholder.com/400x300/d4e8c1/6B8E23?text=${encodeURIComponent(item.name)}'">
-                <div class="menu-info">
-                    <h3>${escapeHtml(item.name)}</h3>
-                    <p>${escapeHtml(item.description || '')} • <strong>${item.category || 'Uncategorized'}</strong></p>
-                    <span class="stock-badge ${getStockClass(item.stock)}">${getStockLabel(item.stock)}</span>
-                    <div class="price">ZMW ${item.price}</div>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="edit-btn" onclick="showEditMenuItemModal(${item.id})">✏️ Edit</button>
-                        <button class="delete-btn" onclick="deleteMenuItem(${item.id})">🗑️ Delete</button>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    }
+function saveOrder(order) {
+    return new Promise((res, rej) => {
+        const tx = db.transaction(['orders'], 'readwrite');
+        const req = tx.objectStore('orders').add(order);
+        req.onsuccess = () => res(req.result);
+        req.onerror = () => rej(req.error);
+    });
+}
 
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
+function getAllOrders() {
+    return new Promise(res => {
+        if (!db) { res([]); return; }
+        db.transaction(['orders'], 'readonly').objectStore('orders').getAll().onsuccess = (e) => res(e.target.result || []);
+    });
+}
 
-    // Modal Functions
-    function showAddMenuItemModal() {
-        document.getElementById('modalTitle').innerText = 'Add New Quail Product';
-        document.getElementById('itemName').value = '';
-        document.getElementById('itemDesc').value = '';
-        document.getElementById('itemPrice').value = '';
-        document.getElementById('itemCategory').value = '';
-        document.getElementById('itemStock').value = '';
-        document.getElementById('itemImage').value = '';
-        document.getElementById('editItemId').value = '';
-        document.getElementById('menuModal').style.display = 'flex';
-    }
-
-    function showEditMenuItemModal(id) {
-        const item = menu.find(i => i.id === id);
-        if (item) {
-            document.getElementById('modalTitle').innerText = 'Edit Quail Product';
-            document.getElementById('itemName').value = item.name;
-            document.getElementById('itemDesc').value = item.description || '';
-            document.getElementById('itemPrice').value = item.price;
-            document.getElementById('itemCategory').value = item.category || '';
-            document.getElementById('itemStock').value = item.stock || 0;
-            document.getElementById('itemImage').value = item.image || '';
-            document.getElementById('editItemId').value = id;
-            document.getElementById('menuModal').style.display = 'flex';
-        }
-    }
-
-    function closeModal() {
-        document.getElementById('menuModal').style.display = 'none';
-    }
-
-    async function saveMenuItem() {
-        const name = document.getElementById('itemName').value.trim();
-        const description = document.getElementById('itemDesc').value.trim();
-        const price = parseFloat(document.getElementById('itemPrice').value);
-        const category = document.getElementById('itemCategory').value.trim() || 'Live Birds';
-        const stock = parseInt(document.getElementById('itemStock').value) || 0;
-        let image = document.getElementById('itemImage').value.trim();
-        const editId = document.getElementById('editItemId').value;
-        
-        if (!name || isNaN(price) || price <= 0) {
-            showToast('❌ Please fill valid name and price');
-            return;
-        }
-        
-        if (!image) {
-            image = 'https://via.placeholder.com/400x300/d4e8c1/6B8E23?text=' + encodeURIComponent(name);
-        }
-        
-        if (editId) {
-            await updateMenuItem(parseInt(editId), { name, description, price, category, stock, image });
-        } else {
-            await addMenuItem({ name, description, price, category, stock, image });
-        }
-        
-        closeModal();
-    }
-
-    async function addMenuItem(item) {
-        return new Promise((resolve) => {
-            const tx = db.transaction(['menu'], 'readwrite');
-            const store = tx.objectStore('menu');
-            const req = store.add(item);
-            req.onsuccess = () => {
-                showToast(`✅ ${item.name} added to Didi Farm products`);
-                loadMenuFromDB();
-                resolve();
-            };
-        });
-    }
-
-    async function updateMenuItem(id, updates) {
-        return new Promise((resolve) => {
-            const tx = db.transaction(['menu'], 'readwrite');
-            const store = tx.objectStore('menu');
-            const getReq = store.get(id);
-            getReq.onsuccess = () => {
-                const existing = getReq.result;
-                const updated = { ...existing, ...updates };
-                store.put(updated);
-                showToast(`✅ ${updates.name} updated`);
-                loadMenuFromDB();
-                resolve();
-            };
-        });
-    }
-
-    async function deleteMenuItem(id) {
-        if (!confirm('Delete this product from Didi Farm?')) return;
-        const tx = db.transaction(['menu'], 'readwrite');
-        const store = tx.objectStore('menu');
-        store.delete(id);
-        showToast('🗑️ Product deleted');
-        setTimeout(() => loadMenuFromDB(), 200);
-    }
-
-    // ============ DELIVERY AGENTS ============
-    async function loadDeliveryGirls() {
-        if (!db) return;
-        const tx = db.transaction(['deliveryGirls'], 'readonly');
-        const store = tx.objectStore('deliveryGirls');
-        const girls = await new Promise((resolve) => {
-            store.getAll().onsuccess = (e) => resolve(e.target.result || []);
-        });
-        
-        const container = document.getElementById('deliveryGirlsList');
-        if (container && currentAdmin) {
-            if (girls.length === 0) {
-                container.innerHTML = '<p style="color:#999">No delivery agents added yet</p>';
-            } else {
-                container.innerHTML = girls.map(girl => `
-                    <div class="delivery-girl-card">
-                        <div><strong>${escapeHtml(girl.name)}</strong> (PIN: ${girl.pin})</div>
-                        <button class="delete-btn" onclick="deleteDeliveryGirl(${girl.id})">Delete</button>
-                    </div>
-                `).join('');
-            }
-        }
-        return girls;
-    }
-
-    async function addDeliveryGirl() {
-        const name = document.getElementById('newGirlName').value.trim();
-        const pin = document.getElementById('newGirlPin').value.trim();
-        if (!name || !pin) {
-            showToast('❌ Enter name and PIN');
-            return;
-        }
-        const tx = db.transaction(['deliveryGirls'], 'readwrite');
-        const store = tx.objectStore('deliveryGirls');
-        store.add({ name: name, pin: pin, createdAt: new Date().toISOString() });
-        showToast(`✅ Delivery agent ${name} added! PIN: ${pin}`);
-        document.getElementById('newGirlName').value = '';
-        document.getElementById('newGirlPin').value = '';
-        loadDeliveryGirls();
-    }
-
-    async function deleteDeliveryGirl(id) {
-        if (confirm('Delete this delivery agent?')) {
-            const tx = db.transaction(['deliveryGirls'], 'readwrite');
-            const store = tx.objectStore('deliveryGirls');
-            store.delete(id);
-            showToast('Delivery agent deleted');
-            loadDeliveryGirls();
-        }
-    }
-
-    async function verifyDeliveryGirl(name, pin) {
-        const tx = db.transaction(['deliveryGirls'], 'readonly');
-        const store = tx.objectStore('deliveryGirls');
-        const girls = await new Promise((resolve) => {
-            store.getAll().onsuccess = (e) => resolve(e.target.result || []);
-        });
-        return girls.find(g => g.name === name && g.pin === pin);
-    }
-
-    // ============ ORDERS ============
-    function saveOrder(order) {
-        return new Promise((resolve, reject) => {
-            const tx = db.transaction(['orders'], 'readwrite');
-            const store = tx.objectStore('orders');
-            const req = store.add(order);
-            req.onsuccess = () => resolve(req.result);
-            req.onerror = () => reject(req.error);
-        });
-    }
-
-    function getAllOrders() {
-        return new Promise((resolve) => {
-            if (!db) { resolve([]); return; }
-            const tx = db.transaction(['orders'], 'readonly');
-            const store = tx.objectStore('orders');
-            store.getAll().onsuccess = (e) => resolve(e.target.result || []);
-        });
-    }
-
-    async function updateOrderStatus(orderId, status, deliveryGirl = null) {
-        const orders = await getAllOrders();
-        const order = orders.find(o => o.id === orderId);
-        if (order) {
-            order.status = status;
-            if (deliveryGirl) order.deliveryGirl = deliveryGirl;
-            order.lastUpdated = new Date().toISOString();
-            const tx = db.transaction(['orders'], 'readwrite');
-            const store = tx.objectStore('orders');
-            store.put(order);
-            if (currentAdmin) loadAllOrdersAdmin();
-        }
-    }
-
-    async function loadAvailableOrders() {
-        const orders = await getAllOrders();
-        const pending = orders.filter(o => o.status === 'pending');
-        const container = document.getElementById('availableOrdersList');
-        if (container && currentDeliveryGirl) {
-            if (pending.length === 0) {
-                container.innerHTML = '<p style="color:#999; text-align:center">No pending deliveries</p>';
-            } else {
-                container.innerHTML = pending.map(order => `
-                    <div class="order-card">
-                        <div><strong>Order #${order.id}</strong></div>
-                        <div>📍 ${order.address?.substring(0, 40) || 'N/A'}...</div>
-                        <div>📞 ${order.phone}</div>
-                        <div>💰 ZMW ${order.total}</div>
-                        <div>🐦 ${order.items?.map(i => `${i.quantity}x ${i.name}`).join(', ') || ''}</div>
-                        <button class="btn-primary" onclick="acceptOrder(${order.id})">✓ Accept Delivery</button>
-                    </div>
-                `).join('');
-            }
-        }
-    }
-
-    async function loadMyDeliveries() {
-        if (!currentDeliveryGirl) return;
-        const orders = await getAllOrders();
-        const myOrders = orders.filter(o => o.deliveryGirl === currentDeliveryGirl.name && o.status !== 'delivered');
-        const container = document.getElementById('myDeliveriesList');
-        if (container) {
-            if (myOrders.length === 0) {
-                container.innerHTML = '<p style="color:#999; text-align:center">No active deliveries</p>';
-            } else {
-                container.innerHTML = myOrders.map(order => `
-                    <div class="order-card">
-                        <div><strong>Order #${order.id}</strong> <span class="status-badge status-${order.status}">${order.status}</span></div>
-                        <div>📍 ${order.address?.substring(0, 40) || 'N/A'}</div>
-                        <div>📞 ${order.phone}</div>
-                        <div>💰 ZMW ${order.total}</div>
-                        ${order.status === 'accepted' ? 
-                            `<button class="btn-primary" onclick="startDelivery(${order.id})">🚚 Start Delivery</button>` : 
-                            order.status === 'delivering' ?
-                            `<button class="btn-primary" onclick="completeDelivery(${order.id})">✅ Mark Delivered</button>` : ''}
-                    </div>
-                `).join('');
-            }
-        }
-    }
-
-    async function acceptOrder(orderId) {
-        await updateOrderStatus(orderId, 'accepted', currentDeliveryGirl.name);
-        showToast(`✅ Order #${orderId} accepted!`);
-        loadAvailableOrders();
-        loadMyDeliveries();
-    }
-
-    async function startDelivery(orderId) {
-        await updateOrderStatus(orderId, 'delivering');
-        showToast(`🚚 Delivery started for order #${orderId}`);
-        loadMyDeliveries();
-        const orders = await getAllOrders();
-        const order = orders.find(o => o.id === orderId);
-        if (order && order.address) {
-            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.address + ', Kasama, Zambia')}`, '_blank');
-        }
-    }
-
-    async function completeDelivery(orderId) {
-        await updateOrderStatus(orderId, 'delivered');
-        showToast(`🎉 Order #${orderId} delivered!`);
-        loadAvailableOrders();
-        loadMyDeliveries();
+async function updateOrderStatus(orderId, status, deliveryGirl = null) {
+    const orders = await getAllOrders();
+    const order = orders.find(o => o.id === orderId);
+    if (order) {
+        order.status = status;
+        if (deliveryGirl) order.deliveryGirl = deliveryGirl;
+        order.lastUpdated = new Date().toISOString();
+        db.transaction(['orders'], 'readwrite').objectStore('orders').put(order);
         if (currentAdmin) loadAllOrdersAdmin();
     }
+}
 
-    // ============ ADMIN ============
-    function loginAdmin() {
-        const password = document.getElementById('adminPassword').value;
-        if (password === ADMIN_PASSWORD) {
-            currentAdmin = true;
-            document.getElementById('adminLogin').style.display = 'none';
-            document.getElementById('adminDashboard').style.display = 'block';
-            loadDeliveryGirls();
-            loadAllOrdersAdmin();
-            renderAdminMenu();
-            showToast('✅ Admin logged in!');
-        } else {
-            showToast('❌ Wrong password');
+async function loadAvailableOrders() {
+    const orders = await getAllOrders();
+    const pending = orders.filter(o => o.status === 'pending');
+    const c = document.getElementById('availableOrdersList');
+    if (c && currentDeliveryGirl) {
+        c.innerHTML = pending.length === 0 ? '<p style="color:#999;text-align:center">No pending deliveries</p>' :
+        pending.map(o => `<div class="order-card"><div><strong>Order #${o.id}</strong></div><div>📍 ${o.address?.substring(0,40) || 'N/A'}...</div><div>📞 ${o.phone}</div><div>💰 ZMW ${o.total}</div><div>🔥 ${o.items?.map(i => `${i.quantity}x ${i.name}`).join(', ') || ''}</div><button class="btn-primary" onclick="acceptOrder(${o.id})">✓ Accept</button></div>`).join('');
+    }
+}
+
+async function loadMyDeliveries() {
+    if (!currentDeliveryGirl) return;
+    const orders = await getAllOrders();
+    const mine = orders.filter(o => o.deliveryGirl === currentDeliveryGirl.name && o.status !== 'delivered');
+    const c = document.getElementById('myDeliveriesList');
+    if (c) {
+        c.innerHTML = mine.length === 0 ? '<p style="color:#999;text-align:center">No active deliveries</p>' :
+        mine.map(o => `<div class="order-card"><div><strong>Order #${o.id}</strong> <span class="status-badge status-${o.status}">${o.status}</span></div><div>📍 ${o.address?.substring(0,40) || ''}</div><div>📞 ${o.phone}</div><div>💰 ZMW ${o.total}</div>${o.status === 'accepted' ? `<button class="btn-primary" onclick="startDelivery(${o.id})">🚚 Start Delivery</button>` : o.status === 'delivering' ? `<button class="btn-primary" onclick="completeDelivery(${o.id})">✅ Mark Delivered</button>` : ''}</div>`).join('');
+    }
+}
+
+async function acceptOrder(id) { await updateOrderStatus(id, 'accepted', currentDeliveryGirl.name); showToast(`✅ Order #${id} accepted!`); loadAvailableOrders(); loadMyDeliveries(); }
+async function startDelivery(id) {
+    await updateOrderStatus(id, 'delivering'); showToast(`🚚 Started order #${id}`); loadMyDeliveries();
+    const orders = await getAllOrders(); const o = orders.find(x => x.id === id);
+    if (o && o.address) window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.address + ', Kasama, Zambia')}`, '_blank');
+}
+async function completeDelivery(id) { await updateOrderStatus(id, 'delivered'); showToast(`🎉 Order #${id} delivered!`); loadAvailableOrders(); loadMyDeliveries(); }
+
+function loginAdmin() {
+    const pw = document.getElementById('adminPassword').value;
+    if (pw === ADMIN_PASSWORD) {
+        currentAdmin = true;
+        document.getElementById('adminLogin').style.display = 'none';
+        document.getElementById('adminDashboard').style.display = 'block';
+        loadDeliveryGirls(); loadAllOrdersAdmin(); renderAdminMenu();
+        showToast('✅ Admin logged in!');
+    } else showToast('❌ Wrong password');
+}
+
+async function loadAllOrdersAdmin() {
+    const orders = await getAllOrders();
+    const total = orders.reduce((s, o) => s + (o.total || 0), 0);
+    document.getElementById('totalOrdersCount').innerHTML = orders.length;
+    document.getElementById('totalRevenue').innerHTML = total.toFixed(2);
+    const c = document.getElementById('allOrdersList');
+    if (c) {
+        c.innerHTML = orders.length === 0 ? '<p style="color:#999">No orders yet</p>' :
+        orders.sort((a,b) => new Date(b.date) - new Date(a.date)).map(o => `<div class="order-card"><div><strong>Order #${o.id}</strong> <span class="status-badge status-${o.status}">${o.status}</span></div><div>📞 ${o.phone}</div><div>📍 ${o.address?.substring(0,50) || ''}</div><div>🔥 ${o.items?.map(i => `${i.quantity}x ${i.name}`).join(', ') || ''}</div><div>💰 ZMW ${o.total} | ${o.paymentMethod}</div><div>📅 ${new Date(o.date).toLocaleString()}</div>${o.deliveryGirl ? `<div>🛵 ${o.deliveryGirl}</div>` : ''}</div>`).join('');
+    }
+    applyFilter();
+}
+
+function filterOrdersByMonth(m) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    const btns = document.querySelectorAll('.filter-btn');
+    if (m === 'all') { if (btns[0]) btns[0].classList.add('active'); }
+    else if (btns[m]) btns[m].classList.add('active');
+    currentFilter = m; applyFilter();
+}
+
+async function applyFilter() {
+    const orders = await getAllOrders();
+    let f = [...orders]; const now = new Date();
+    if (currentFilter !== 'all') f = orders.filter(o => { const d = new Date(o.date); return d.getMonth() + 1 === currentFilter && d.getFullYear() === now.getFullYear(); });
+    const c = document.getElementById('filteredOrdersList');
+    if (c) {
+        if (f.length === 0) c.innerHTML = '<p style="color:#999">No orders for this period</p>';
+        else {
+            const tot = f.reduce((s, o) => s + (o.total || 0), 0);
+            c.innerHTML = `<div class="stat-card" style="background:#4CAF50;margin-bottom:10px;"><p>📊 Filtered: ${f.length} orders</p><p>💰 Revenue: ZMW ${tot.toFixed(2)}</p></div>${f.map(o => `<div class="order-card"><div><strong>Order #${o.id}</strong> <span class="status-badge status-${o.status}">${o.status}</span></div><div>📞 ${o.phone}</div><div>💰 ZMW ${o.total}</div><div>📅 ${new Date(o.date).toLocaleDateString()}</div></div>`).join('')}`;
         }
     }
+}
 
-    async function loadAllOrdersAdmin() {
+function getCustomerGPSLocation() {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            currentCustomerLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            document.getElementById('address').value = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)} - Kasama`;
+            if (customerMap) { customerMap.setView([pos.coords.latitude, pos.coords.longitude], 16); if (customerMarker) customerMarker.setLatLng([pos.coords.latitude, pos.coords.longitude]); }
+            showToast('📍 GPS acquired!');
+        }, () => showToast('❌ Unable to get GPS'), { enableHighAccuracy: true });
+}
+
+function updateDeliveryLocation() {
+    if (!navigator.geolocation || !currentDeliveryGirl) return;
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            currentDeliveryGirl.location = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            document.getElementById('deliveryLocationStatus').innerHTML = `📍 Live: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
+            if (deliveryMap) {
+                deliveryMap.setView([pos.coords.latitude, pos.coords.longitude], 15);
+                if (deliveryMarker) deliveryMap.removeLayer(deliveryMarker);
+                deliveryMarker = L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(deliveryMap).bindPopup('Your Location').openPopup();
+            }
+            showToast('📍 Location updated!');
+        }, () => showToast('❌ Unable to get location'));
+}
+
+async function loginDeliveryGirl() {
+    const name = document.getElementById('deliveryName').value;
+    const pin = document.getElementById('deliveryPin').value;
+    const valid = await verifyDeliveryGirl(name, pin);
+    if (valid) {
+        currentDeliveryGirl = { name, location: null };
+        document.getElementById('deliveryLogin').style.display = 'none';
+        document.getElementById('deliveryDashboard').style.display = 'block';
+        document.getElementById('deliveryGirlName').innerText = name;
+        initDeliveryMap(); updateDeliveryLocation(); loadAvailableOrders(); loadMyDeliveries();
+        setInterval(() => { if (currentDeliveryGirl) { loadAvailableOrders(); loadMyDeliveries(); } }, 10000);
+        showToast(`✅ Welcome ${name}!`);
+    } else showToast('❌ Invalid. Default: Didi Agent / 1234');
+}
+
+function addToCart(id) {
+    const item = menu.find(i => i.id === id); if (!item) return;
+    const existing = cart.find(i => i.id === id);
+    if (existing) existing.quantity++; else cart.push({ ...item, quantity: 1 });
+    renderCart(); showToast(`✅ ${item.name} added`);
+}
+
+function renderCart() {
+    const c = document.getElementById('cartItemsList'); const t = document.getElementById('cartTotal'); if (!c) return;
+    if (cart.length === 0) { c.innerHTML = '<p style="text-align:center;color:#999;">Cart is empty</p>'; t.innerHTML = 'Total: ZMW 0.00'; return; }
+    let tot = 0;
+    c.innerHTML = cart.map(i => { const it = i.price * i.quantity; tot += it; return `<div class="cart-item"><div><b>${escapeHtml(i.name)}</b> x${i.quantity}<br><small>ZMW ${i.price}</small></div><div>ZMW ${it} <button onclick="removeFromCart(${i.id})" style="background:#ff4444;border:none;color:white;padding:4px 10px;border-radius:20px;margin-left:8px">×</button></div></div>`; }).join('');
+    t.innerHTML = `Total: ZMW ${tot.toFixed(2)}`;
+}
+
+function removeFromCart(id) {
+    const idx = cart.findIndex(i => i.id === id);
+    if (idx !== -1) { if (cart[idx].quantity > 1) cart[idx].quantity--; else cart.splice(idx, 1); renderCart(); }
+}
+
+async function placeOrder() {
+    if (cart.length === 0) { showToast('❌ Cart is empty'); return; }
+    const phone = document.getElementById('phone').value;
+    const address = document.getElementById('address').value;
+    if (!phone || phone.length < 9) { showToast('❌ Enter valid phone'); return; }
+    if (!address) { showToast('❌ Enter address or use GPS'); return; }
+    const payment = document.querySelector('input[name="payment"]:checked').value;
+    const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+    const order = { phone, address, landmark: document.getElementById('landmark').value, items: JSON.parse(JSON.stringify(cart)), total, paymentMethod: payment, status: 'pending', date: new Date().toISOString(), customerLocation: currentCustomerLocation };
+    const orderId = await saveOrder(order);
+    showToast(`✅ Order #${orderId} placed!`);
+    cart = []; renderCart();
+    document.getElementById('phone').value = ''; document.getElementById('address').value = ''; document.getElementById('landmark').value = '';
+    loadAvailableOrders(); navigateTo('track');
+    document.getElementById('trackingStatus').innerHTML = `<div class="order-card"><h4>✅ Order #${orderId} Confirmed!</h4><p>Waiting for delivery agent...</p></div>`;
+    const iv = setInterval(async () => {
         const orders = await getAllOrders();
-        const total = orders.reduce((sum, o) => sum + (o.total || 0), 0);
-        document.getElementById('totalOrdersCount').innerHTML = orders.length;
-        document.getElementById('totalRevenue').innerHTML = total.toFixed(2);
-        
-        const container = document.getElementById('allOrdersList');
-        if (container) {
-            if (orders.length === 0) {
-                container.innerHTML = '<p style="color:#999">No orders yet</p>';
-            } else {
-                container.innerHTML = orders.sort((a,b) => new Date(b.date) - new Date(a.date)).map(order => `
-                    <div class="order-card">
-                        <div><strong>Order #${order.id}</strong> <span class="status-badge status-${order.status}">${order.status}</span></div>
-                        <div>📞 ${order.phone}</div>
-                        <div>📍 ${order.address?.substring(0, 50) || 'N/A'}</div>
-                        <div>🐦 ${order.items?.map(i => `${i.quantity}x ${i.name}`).join(', ') || ''}</div>
-                        <div>💰 ZMW ${order.total} | ${order.paymentMethod}</div>
-                        <div>📅 ${new Date(order.date).toLocaleString()}</div>
-                        ${order.deliveryGirl ? `<div>👧 Delivery: ${order.deliveryGirl}</div>` : ''}
-                    </div>
-                `).join('');
-            }
+        const upd = orders.find(o => o.id === orderId);
+        if (upd) {
+            document.getElementById('trackingStatus').innerHTML = `<div class="order-card"><h4>🛵 Order #${orderId}</h4><p>Status: <span class="status-badge status-${upd.status}">${upd.status.toUpperCase()}</span></p>${upd.deliveryGirl ? `<p>🛵 ${upd.deliveryGirl}</p>` : ''}${upd.status === 'delivered' ? '<p>🎉 Delivered! Thank you for choosing Didi Smoked Meats!</p>' : ''}</div>`;
+            if (upd.status === 'delivered') clearInterval(iv);
         }
-        applyFilter();
-    }
+        const mine = orders.filter(o => o.phone === phone);
+        const h = document.getElementById('orderHistoryList');
+        if (h) h.innerHTML = mine.length === 0 ? '<p style="color:#999">No orders yet</p>' :
+        mine.map(o => `<div class="order-card"><div><strong>Order #${o.id}</strong> <span class="status-badge status-${o.status}">${o.status}</span></div><div>${new Date(o.date).toLocaleString()} | ZMW ${o.total}</div><div>🔥 ${o.items?.map(i => `${i.quantity}x ${i.name}`).join(', ') || ''}</div></div>`).join('');
+    }, 3000);
+}
 
-    async function filterOrdersByMonth(month) {
-        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-        if (month !== 'all') {
-            const btns = document.querySelectorAll('.filter-btn');
-            if (btns[month]) btns[month].classList.add('active');
-        } else {
-            const btns = document.querySelectorAll('.filter-btn');
-            if (btns[0]) btns[0].classList.add('active');
-        }
-        currentFilter = month;
-        applyFilter();
-    }
+function initCustomerMap() {
+    if (typeof L === 'undefined' || !document.getElementById('customerMap')) return;
+    customerMap = L.map('customerMap').setView(KASAMA_CENTER, 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(customerMap);
+    customerMarker = L.marker(KASAMA_CENTER, { draggable: true }).addTo(customerMap);
+    customerMarker.on('dragend', () => {
+        const pos = customerMarker.getLatLng();
+        currentCustomerLocation = { lat: pos.lat, lng: pos.lng };
+        document.getElementById('address').value = `${pos.lat.toFixed(6)}, ${pos.lng.toFixed(6)} - Kasama`;
+    });
+}
 
-    async function applyFilter() {
-        const orders = await getAllOrders();
-        let filteredOrders = [...orders];
-        const now = new Date();
-        
-        if (currentFilter !== 'all') {
-            filteredOrders = orders.filter(o => {
-                const orderDate = new Date(o.date);
-                return orderDate.getMonth() + 1 === currentFilter && orderDate.getFullYear() === now.getFullYear();
-            });
-        }
-        
-        const container = document.getElementById('filteredOrdersList');
-        if (container) {
-            if (filteredOrders.length === 0) {
-                container.innerHTML = '<p style="color:#999">No orders for this period</p>';
-            } else {
-                const totalFiltered = filteredOrders.reduce((sum, o) => sum + (o.total || 0), 0);
-                container.innerHTML = `
-                    <div class="stat-card" style="background: #4CAF50; margin-bottom: 10px;">
-                        <p>📊 Filtered Total: ${filteredOrders.length} orders</p>
-                        <p>💰 Revenue: ZMW ${totalFiltered.toFixed(2)}</p>
-                    </div>
-                    ${filteredOrders.map(order => `
-                        <div class="order-card">
-                            <div><strong>Order #${order.id}</strong> <span class="status-badge status-${order.status}">${order.status}</span></div>
-                            <div>📞 ${order.phone}</div>
-                            <div>💰 ZMW ${order.total}</div>
-                            <div>📅 ${new Date(order.date).toLocaleDateString()}</div>
-                        </div>
-                    `).join('')}
-                `;
-            }
-        }
-    }
+function initDeliveryMap() {
+    if (typeof L === 'undefined' || !document.getElementById('deliveryMap')) return;
+    deliveryMap = L.map('deliveryMap').setView(KASAMA_CENTER, 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(deliveryMap);
+    L.marker(KASAMA_CENTER).bindPopup("🔥 Didi Smoked Meats - Pickup Point").addTo(deliveryMap);
+}
 
-    // ============ CUSTOMER ============
-    function getCustomerGPSLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    currentCustomerLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                    document.getElementById('address').value = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)} - Kasama`;
-                    if (customerMap) {
-                        customerMap.setView([pos.coords.latitude, pos.coords.longitude], 16);
-                        if (customerMarker) customerMarker.setLatLng([pos.coords.latitude, pos.coords.longitude]);
-                    }
-                    showToast('📍 GPS location acquired!');
-                },
-                () => showToast('❌ Unable to get GPS'),
-                { enableHighAccuracy: true }
-            );
-        }
-    }
+function navigateTo(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const t = document.getElementById(`${page}Page`); if (t) t.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const navMap = { home: 0, cart: 1, track: 2, delivery: 3, admin: 4, profile: 5 };
+    const idx = navMap[page]; const items = document.querySelectorAll('.nav-item');
+    if (idx !== undefined && items[idx]) items[idx].classList.add('active');
+    if (page === 'track' && !customerMap) initCustomerMap();
+    if (page === 'delivery' && deliveryMap) setTimeout(() => deliveryMap.invalidateSize(), 100);
+    if (page === 'admin' && currentAdmin) { loadAllOrdersAdmin(); renderAdminMenu(); }
+}
 
-    function updateDeliveryLocation() {
-        if (navigator.geolocation && currentDeliveryGirl) {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    currentDeliveryGirl.location = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                    document.getElementById('deliveryLocationStatus').innerHTML = `📍 Live: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
-                    if (deliveryMap) {
-                        deliveryMap.setView([pos.coords.latitude, pos.coords.longitude], 15);
-                        if (deliveryMarker) deliveryMap.removeLayer(deliveryMarker);
-                        deliveryMarker = L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(deliveryMap).bindPopup('Your Location').openPopup();
-                    }
-                    showToast('📍 Location updated!');
-                },
-                () => showToast('❌ Unable to get location')
-            );
-        }
-    }
+function showToast(msg) {
+    const t = document.createElement('div');
+    t.className = 'notification'; t.innerHTML = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2500);
+}
 
-    async function loginDeliveryGirl() {
-        const name = document.getElementById('deliveryName').value;
-        const pin = document.getElementById('deliveryPin').value;
-        const valid = await verifyDeliveryGirl(name, pin);
-        if (valid) {
-            currentDeliveryGirl = { name: name, location: null };
-            document.getElementById('deliveryLogin').style.display = 'none';
-            document.getElementById('deliveryDashboard').style.display = 'block';
-            document.getElementById('deliveryGirlName').innerText = name;
-            initDeliveryMap();
-            updateDeliveryLocation();
-            loadAvailableOrders();
-            loadMyDeliveries();
-            setInterval(() => {
-                if (currentDeliveryGirl) {
-                    loadAvailableOrders();
-                    loadMyDeliveries();
-                }
-            }, 10000);
-            showToast(`✅ Welcome ${name}!`);
-        } else {
-            showToast('❌ Invalid credentials. Default: Didi Agent / 1234');
-        }
-    }
-
-    function addToCart(id) {
-        const item = menu.find(i => i.id === id);
-        if (!item) return;
-        const existing = cart.find(i => i.id === id);
-        if (existing) {
-            existing.quantity++;
-        } else {
-            cart.push({ ...item, quantity: 1 });
-        }
-        renderCart();
-        showToast(`✅ ${item.name} added to cart`);
-    }
-
-    function renderCart() {
-        const container = document.getElementById('cartItemsList');
-        const totalElem = document.getElementById('cartTotal');
-        if (!container) return;
-        if (cart.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color:#999;">Cart is empty</p>';
-            totalElem.innerHTML = 'Total: ZMW 0.00';
-            return;
-        }
-        let total = 0;
-        container.innerHTML = cart.map(item => {
-            const itemTotal = item.price * item.quantity;
-            total += itemTotal;
-            return `
-                <div class="cart-item">
-                    <div><b>${escapeHtml(item.name)}</b> x${item.quantity}<br><small>ZMW ${item.price}</small></div>
-                    <div>ZMW ${itemTotal} <button onclick="removeFromCart(${item.id})" style="background:#ff4444; border:none; color:white; padding:4px 10px; border-radius:20px; margin-left:8px">×</button></div>
-                </div>
-            `;
-        }).join('');
-        totalElem.innerHTML = `Total: ZMW ${total.toFixed(2)}`;
-    }
-
-    function removeFromCart(id) {
-        const index = cart.findIndex(i => i.id === id);
-        if (index !== -1) {
-            if (cart[index].quantity > 1) {
-                cart[index].quantity--;
-            } else {
-                cart.splice(index, 1);
-            }
-            renderCart();
-        }
-    }
-
-    async function placeOrder() {
-        if (cart.length === 0) {
-            showToast('❌ Cart is empty');
-            return;
-        }
-        const phone = document.getElementById('phone').value;
-        const address = document.getElementById('address').value;
-        if (!phone || phone.length < 9) {
-            showToast('❌ Enter valid phone number (e.g., 0971234567)');
-            return;
-        }
-        if (!address) {
-            showToast('❌ Enter address or use GPS');
-            return;
-        }
-        
-        const payment = document.querySelector('input[name="payment"]:checked').value;
-        const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
-        
-        const order = {
-            phone: phone,
-            address: address,
-            landmark: document.getElementById('landmark').value,
-            items: JSON.parse(JSON.stringify(cart)),
-            total: total,
-            paymentMethod: payment,
-            status: 'pending',
-            date: new Date().toISOString(),
-            customerLocation: currentCustomerLocation
-        };
-        
-        const orderId = await saveOrder(order);
-        showToast(`✅ Order #${orderId} placed!`);
-        
-        cart = [];
-        renderCart();
-        document.getElementById('phone').value = '';
-        document.getElementById('address').value = '';
-        document.getElementById('landmark').value = '';
-        loadAvailableOrders();
-        navigateTo('track');
-        
-        document.getElementById('trackingStatus').innerHTML = `
-            <div class="order-card">
-                <h4>✅ Order #${orderId} Confirmed!</h4>
-                <p>Waiting for a delivery agent to accept your order...</p>
-            </div>
-        `;
-        
-        const trackInterval = setInterval(async () => {
-            const orders = await getAllOrders();
-            const updated = orders.find(o => o.id === orderId);
-            if (updated) {
-                document.getElementById('trackingStatus').innerHTML = `
-                    <div class="order-card">
-                        <h4>🛵 Order #${orderId}</h4>
-                        <p>Status: <span class="status-badge status-${updated.status}">${updated.status.toUpperCase()}</span></p>
-                        ${updated.deliveryGirl ? `<p>👧 Delivery Agent: ${updated.deliveryGirl}</p>` : ''}
-                        ${updated.status === 'delivered' ? '<p>🎉 Delivered! Thank you for choosing Didi Quail Farm!</p>' : ''}
-                    </div>
-                `;
-                if (updated.status === 'delivered') clearInterval(trackInterval);
-            }
-            const myOrders = orders.filter(o => o.phone === phone);
-            const historyDiv = document.getElementById('orderHistoryList');
-            if (historyDiv) {
-                if (myOrders.length === 0) {
-                    historyDiv.innerHTML = '<p style="color:#999">No orders yet</p>';
-                } else {
-                    historyDiv.innerHTML = myOrders.map(order => `
-                        <div class="order-card">
-                            <div><strong>Order #${order.id}</strong> <span class="status-badge status-${order.status}">${order.status}</span></div>
-                            <div>${new Date(order.date).toLocaleString()} | ZMW ${order.total}</div>
-                            <div>🐦 ${order.items?.map(i => `${i.quantity}x ${i.name}`).join(', ') || ''}</div>
-                        </div>
-                    `).join('');
-                }
-            }
-        }, 3000);
-    }
-
-    function initCustomerMap() {
-        if (typeof L === 'undefined') return;
-        const elem = document.getElementById('customerMap');
-        if (!elem) return;
-        customerMap = L.map('customerMap').setView(KASAMA_CENTER, 14);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(customerMap);
-        customerMarker = L.marker(KASAMA_CENTER, { draggable: true }).addTo(customerMap);
-        customerMarker.on('dragend', (e) => {
-            const pos = customerMarker.getLatLng();
-            currentCustomerLocation = { lat: pos.lat, lng: pos.lng };
-            document.getElementById('address').value = `${pos.lat.toFixed(6)}, ${pos.lng.toFixed(6)} - Kasama`;
-        });
-    }
-
-    function initDeliveryMap() {
-        if (typeof L === 'undefined') return;
-        const elem = document.getElementById('deliveryMap');
-        if (!elem) return;
-        deliveryMap = L.map('deliveryMap').setView(KASAMA_CENTER, 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(deliveryMap);
-        L.marker(KASAMA_CENTER).bindPopup("📍 Didi Quail Farm - Pickup Point").addTo(deliveryMap);
-    }
-
-    function navigateTo(page) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        const targetPage = document.getElementById(`${page}Page`);
-        if (targetPage) targetPage.classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        
-        const navMap = { home: 0, cart: 1, track: 2, delivery: 3, admin: 4, profile: 5 };
-        const index = navMap[page];
-        if (index !== undefined) {
-            const navItems = document.querySelectorAll('.nav-item');
-            if (navItems[index]) navItems[index].classList.add('active');
-        }
-        
-        if (page === 'track' && !customerMap) initCustomerMap();
-        if (page === 'delivery' && deliveryMap) setTimeout(() => deliveryMap.invalidateSize(), 100);
-        if (page === 'admin' && currentAdmin) {
-            loadAllOrdersAdmin();
-            renderAdminMenu();
-        }
-    }
-
-    function showToast(msg) {
-        const toast = document.createElement('div');
-        toast.className = 'notification';
-        toast.innerHTML = msg;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 2500);
-    }
-
-    // Initialize
-    initDB();
-    setTimeout(() => { if (!customerMap) initCustomerMap(); }, 500);
+initDB();
+setTimeout(() => { if (!customerMap) initCustomerMap(); }, 500);
 </script>
 </body>
 </html>
